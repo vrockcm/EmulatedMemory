@@ -1,0 +1,32 @@
+1) use this commands to compile the code:
+
+make
+
+2) and to remove the executables the following:
+
+make clean
+
+3)Now to run the program:
+
+in 1st terminal
+
+./main 
+
+in 2nd terminal 
+
+./mem
+
+4)start by creating threads using the create option
+
+5)then allocate the threads using the thread IDs
+
+6)write/read commands to write/read from memory.
+
+7)list command to print all the thread IDs
+
+8)mem command to print all the virtual addresses used by thread (in 32 bit format)
+
+9)kill command to kill a thread using its thread ID.
+
+10)quit command to quit the program
+
