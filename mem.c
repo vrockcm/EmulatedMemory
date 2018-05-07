@@ -23,12 +23,12 @@ int find_block(){
 int main(int argc,char **argv) 
 { 
     sleep(5);
-    emulatedmem = malloc(1024);
+    emulatedmem = calloc(1024,1);
     char buf[100]; 
     mkfifo("fifo", 0666);
     while(1){
         int fd1=open("fifo",O_RDONLY);
-        int choice;
+        int choice; 
         read(fd1,buf,100);
         close(fd1);
         int i = 0;
@@ -44,23 +44,26 @@ int main(int argc,char **argv)
             fd1 = open("fifo",O_WRONLY);
             int addr = atoi(array[1]);
             if(addr<0 || addr>1023){
-                char* str2="error, address out of range\n";
-                write(fd1,str2, strlen(str2)+1);
+                printf("error, address out of range\n");
+                int ret=-1;
+                write(fd1,&ret, sizeof(int));
                 close(fd1);
             }
             else if(addr%4!=0){
-                char* str2="error, address is not aligned\n";
-                write(fd1,str2, strlen(str2)+1);
+                printf("error, address is not aligned\n");
+                int ret=-1;
+                write(fd1,&ret, sizeof(int));
                 close(fd1);
             }
             else{
                 if(in_use[(addr/4)]==1){
-                    write(fd1,&((int*)&emulatedmem)[addr],sizeof(int));
+                    write(fd1,&((int*)emulatedmem)[addr],sizeof(int));
                     close(fd1);
                 }
                 else{ 
-                    char* str2="error, address not in use\n";
-                    write(fd1,str2, strlen(str2)+1);
+                    printf("error, address not in use\n");
+                    int ret=-1;
+                    write(fd1,&ret, sizeof(int));
                     close(fd1);
                 }
             }    
@@ -81,7 +84,7 @@ int main(int argc,char **argv)
             }
             else{
                 int value = atoi(array[2]);
-                ((int*)&emulatedmem)[addr]=value;
+                ((int*)emulatedmem)[addr]=value;
                 in_use[(addr/4)]=1;
                 char* str2="Success! \n"; 
                 write(fd1,str2, strlen(str2)+1);
@@ -92,6 +95,10 @@ int main(int argc,char **argv)
         {
             int addr = atoi(array[1]);
             in_use[addr/4]=0; 
+            fd1 = open("fifo",O_WRONLY);
+            int ret = 0;
+            write(fd1,&ret,sizeof(int));
+            close(fd1);
                            
         }
         else if(strcmp(array[0],"allocate")==0) 
@@ -105,8 +112,8 @@ int main(int argc,char **argv)
                 }
                 else{
                     char str[10];
-                    sprintf(str, "%d", -1 );
-                    write(fd1,str, strlen(str)+1);
+                    int ret = -1;
+                    write(fd1,&ret, sizeof(int));
                 }
                 close(fd1);
         }
